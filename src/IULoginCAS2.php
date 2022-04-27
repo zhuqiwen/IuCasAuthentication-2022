@@ -4,7 +4,13 @@ namespace Edu\IU\VPCM\IULoginCAS;
 
 class IULoginCAS2{
 
-    public function getCurrentURL(): string
+    public const CAS_URL_PROD = 'https://idp.login.iu.edu/idp/profile/cas';
+    public const CAS_URL_PRE_PROD = 'https://idp-stg.login.iu.edu/idp/profile/cas';
+
+
+
+
+    public function getCurrentUrl(): string
     {
 
         $isHttps = $_SERVER['HTTPS'] == 'on';
@@ -18,6 +24,18 @@ class IULoginCAS2{
         $port = empty($port) ? '' : ':' . $port;
 
         return $urlHead . $_SERVER['HTTP_HOST'] . $port . $_SERVER['REQUEST_URI'];
+    }
+
+    public function getCasUrl()
+    {
+        return substr_count(
+            $this->getCurrentUrl(),
+            'sitehost-test'
+        )
+            ?
+            self::CAS_URL_PRE_PROD
+            :
+            self::CAS_URL_PROD;
     }
     
 }
