@@ -1,0 +1,9 @@
+.idea/
+playground/
+playground.php
+playground.*
+
+/vendor/
+/tests/
+composer.lock
+index.php
