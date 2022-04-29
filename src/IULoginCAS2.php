@@ -13,7 +13,7 @@ class IULoginCAS2{
 
 
 
-    public function getCurrentUrl(): string
+    public function getServiceUrl(): string
     {
 
         $isHttps = $_SERVER['HTTPS'] == 'on';
@@ -26,36 +26,51 @@ class IULoginCAS2{
 
         $port = empty($port) ? '' : ':' . $port;
 
-        return $urlHead . $_SERVER['HTTP_HOST'] . $port . $_SERVER['REQUEST_URI'];
-    }
+        //prepare url for /serviceValidate
+        $requestUri = str_replace('ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
 
-    public function getCasUrl(): string
-    {
-        return substr_count(
-            $this->getCurrentUrl(),
-            'sitehost-test'
-        )
-            ?
-            self::CAS_URL_PRE_PROD
-            :
-            self::CAS_URL_PROD;
-    }
-
-
-    public function isAuthenticated()
-    {
-        return $this->authenticated;
+        return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
     }
 
 
     public function login()
     {
-        if(!$this->authenticated){
-
-        }
+        $_SESSION['LAST_SESSION'] = time();
+        header('Location: ' . $this->getLoginUrl(), true, 303);
+        exit();
     }
 
-    public function validate()
+    public function validate(): string
+    {
+
+        //start curl
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->getValidateUrl());
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $results = curl_exec($curl);
+
+        //get username
+        $results = simplexml_load_string($results);
+        $username = (string)$results->xpath('cas:authenticationSuccess/cas:user')[0];
+
+        //when validate fails, re-login
+        if(empty($username)){
+            $this->login();
+        }
+
+        return $username;
+
+    }
+
+
+
+    public function authenticate()
+    {
+        $action = $this->isAuthenticated() ? 'login' : 'validate';
+        $this->$action();
+    }
+
+    public function logout()
     {
 
     }
@@ -70,5 +85,40 @@ class IULoginCAS2{
 
     }
 
+    public function getCasTicket()
+    {
+        return $_GET['ticket'] ?? null;
+    }
 
+    public function getCasUrlBase(): string
+    {
+        return substr_count($_SERVER['HTTP_HOST'], 'sitehost-test') ?
+            self::CAS_URL_PRE_PROD
+            :
+            self::CAS_URL_PROD;
+    }
+
+    public function getLoginUrl(): string
+    {
+         return $this->getCasUrlBase() . DIRECTORY_SEPARATOR . 'login?service=' . $this->getServiceUrl();
+    }
+
+    public function getValidateUrl(): string
+    {
+        $ticket = $this->getCasTicket();
+        $serviceUrl = $this->getServiceUrl();
+
+        return $this->getCasUrlBase() . DIRECTORY_SEPARATOR . 'serviceValidate?ticket=' . $ticket . '&service=' . $serviceUrl;
+    }
+
+
+    public function isAuthenticated(): bool
+    {
+        $result = false;
+        if(isset($_SESSION['LAST_SESSION'])){
+            $result = !(time() - $_SESSION['LAST_SESSION'] > 900);
+        }
+
+        return $result;
+    }
 }
