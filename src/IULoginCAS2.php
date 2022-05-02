@@ -4,38 +4,65 @@ namespace Edu\IU\VPCM\IULoginCAS;
 
 class IULoginCAS2{
 
-    public const CAS_URL_PROD = 'https://idp.login.iu.edu/idp/profile/cas';
-    public const CAS_URL_PRE_PROD = 'https://idp-stg.login.iu.edu/idp/profile/cas';
+    public const CAS_SESSION_START = 'CAS_SESSION_START';
+    // 15 minutes
+    public const CAS_SESSION_TIME = 900;
     public const CASE_SESSION_USER_KEY = 'CAS_USER';
-    private $authenticated;
-    private $username;
 
+    private $casUrlProd;
+    private $casUrlPreProd;
 
-
-
-    public function getServiceUrl(): string
+    public function __construct(string $mode = 'prod')
     {
+        $method = 'init' . $mode;
+        if(method_exists($this, $method)){
+            $this->$method();
+        }else{
+            $msg = 'Illegal parameter value: ';
+            $msg .= $mode;
+            $msg .= 'new $IULoginCAS32($mode), $mode should be either \'prod\' or \'test\'; ';
+            throw new \RuntimeException( $msg );
+        }
+    }
 
-        $isHttps = $_SERVER['HTTPS'] == 'on';
-        $urlHead = $isHttps ? 'https://' : 'http://';
+    private function initProd()
+    {
+        $this->casUrlProd = 'https://idp.login.iu.edu/idp/profile/cas';
+        $this->casUrlPreProd = 'https://idp-stg.login.iu.edu/idp/profile/cas';
+    }
 
-        $port = $isHttps ?
-            ($_SERVER['SERVER_PORT'] != '443' ?? '')
-            :
-            ($_SERVER['SERVER_PORT'] != '80' ?? '');
+    private function initTest()
+    {
+        $this->casUrlProd = 'localhost:12345';
+        $this->casUrlPreProd = 'localhost:12345';
+    }
+    
+    
 
-        $port = empty($port) ? '' : ':' . $port;
+    /**
+     * @return bool
+     * only true when last validate is no older than a certain period of time
+     */
+    public function isAuthenticated(): bool
+    {
+        $result = false;
+        if(isset($_SESSION[self::CAS_SESSION_START])){
+            $result = !(time() - $_SESSION[self::CAS_SESSION_START] > self::CAS_SESSION_TIME);
+        }
 
-        //prepare url for /serviceValidate
-        $requestUri = str_replace('ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
-
-        return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
+        return $result;
     }
 
 
+    public function authenticate()
+    {
+        $action = $this->isAuthenticated() ? 'login' : 'validate';
+        $this->$action();
+    }
+
     public function login()
     {
-        $_SESSION['LAST_SESSION'] = time();
+        $_SESSION[self::CAS_SESSION_START] = time();
         header('Location: ' . $this->getLoginUrl(), true, 303);
         exit();
     }
@@ -62,18 +89,14 @@ class IULoginCAS2{
 
     }
 
-
-
-    public function authenticate()
-    {
-        $action = $this->isAuthenticated() ? 'login' : 'validate';
-        $this->$action();
-    }
-
     public function logout()
     {
 
     }
+
+
+
+
 
     public function getUserName()
     {
@@ -90,12 +113,31 @@ class IULoginCAS2{
         return $_GET['ticket'] ?? null;
     }
 
+    public function getServiceUrl(): string
+    {
+
+        $isHttps = $_SERVER['HTTPS'] == 'on';
+        $urlHead = $isHttps ? 'https://' : 'http://';
+
+        $port = $isHttps ?
+            ($_SERVER['SERVER_PORT'] != '443' ?? '')
+            :
+            ($_SERVER['SERVER_PORT'] != '80' ?? '');
+
+        $port = empty($port) ? '' : ':' . $port;
+
+        //prepare url for /serviceValidate
+        $requestUri = str_replace('ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
+
+        return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
+    }
+
     public function getCasUrlBase(): string
     {
         return substr_count($_SERVER['HTTP_HOST'], 'sitehost-test') ?
-            self::CAS_URL_PRE_PROD
+            $this->casUrlPreProd
             :
-            self::CAS_URL_PROD;
+            $this->casUrlProd;
     }
 
     public function getLoginUrl(): string
@@ -112,13 +154,5 @@ class IULoginCAS2{
     }
 
 
-    public function isAuthenticated(): bool
-    {
-        $result = false;
-        if(isset($_SESSION['LAST_SESSION'])){
-            $result = !(time() - $_SESSION['LAST_SESSION'] > 900);
-        }
 
-        return $result;
-    }
 }
