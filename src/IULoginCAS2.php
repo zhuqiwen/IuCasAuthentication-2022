@@ -33,8 +33,8 @@ class IULoginCAS2{
 
     private function initTest()
     {
-        $this->casUrlProd = 'localhost:12345';
-        $this->casUrlPreProd = 'localhost:12345';
+        $this->casUrlProd = 'http://localhost:12345';
+        $this->casUrlPreProd = 'http://localhost:12345';
     }
     
     
@@ -120,14 +120,15 @@ class IULoginCAS2{
         $urlHead = $isHttps ? 'https://' : 'http://';
 
         $port = $isHttps ?
-            ($_SERVER['SERVER_PORT'] != '443' ?? '')
+            ($_SERVER['SERVER_PORT'] != '443' ? $_SERVER['SERVER_PORT'] : '')
             :
-            ($_SERVER['SERVER_PORT'] != '80' ?? '');
+            ($_SERVER['SERVER_PORT'] != '80' ? $_SERVER['SERVER_PORT'] : '');
 
         $port = empty($port) ? '' : ':' . $port;
 
         //prepare url for /serviceValidate
         $requestUri = str_replace('ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
+
 
         return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
     }
