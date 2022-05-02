@@ -25,7 +25,7 @@ class IULoginCAS2Test extends TestCase{
     public static function tearDownAfterClass(): void
     {
         $pids = file_exists(self::PID_FILE) ? file(self::PID_FILE) : false;
-        self::localServer($pids, $killOrder);
+        self::localServer($pids);
     }
 
 
