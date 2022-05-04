@@ -2,7 +2,8 @@
 
 namespace Edu\IU\VPCM\IULoginCAS;
 
-class IULoginCAS2{
+class IULoginCAS2
+{
 
     public const CAS_SESSION_START = 'CAS_SESSION_START';
     // 15 minutes
@@ -11,17 +12,22 @@ class IULoginCAS2{
 
     private $casUrlProd;
     private $casUrlPreProd;
+    private $username;
 
     public function __construct(string $mode = 'prod')
     {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
         $method = 'init' . $mode;
-        if(method_exists($this, $method)){
+        if (method_exists($this, $method)) {
             $this->$method();
-        }else{
+        } else {
             $msg = 'Illegal parameter value: ';
             $msg .= $mode;
             $msg .= 'new $IULoginCAS32($mode), $mode should be either \'prod\' or \'test\'; ';
-            throw new \RuntimeException( $msg );
+            throw new \RuntimeException($msg);
         }
     }
 
@@ -36,28 +42,17 @@ class IULoginCAS2{
         $this->casUrlProd = 'http://localhost:12345';
         $this->casUrlPreProd = 'http://localhost:12345';
     }
-    
-    
-
-    /**
-     * @return bool
-     * only true when last validate is no older than a certain period of time
-     */
-    public function isAuthenticated(): bool
-    {
-        $result = false;
-        if(isset($_SESSION[self::CAS_SESSION_START])){
-            $result = !(time() - $_SESSION[self::CAS_SESSION_START] > self::CAS_SESSION_TIME);
-        }
-
-        return $result;
-    }
 
 
     public function authenticate()
     {
-        $action = $this->isAuthenticated() ? 'login' : 'validate';
-        $this->$action();
+        if ($this->isSessionExpired()) {
+            $this->login();
+        } elseif ($this->getCasTicket()) {
+            $this->validate();
+        } elseif ($this->isUserNotLogged()) {
+            $this->login();
+        }
     }
 
     public function login()
@@ -67,9 +62,8 @@ class IULoginCAS2{
         exit();
     }
 
-    public function validate(): string
+    public function validate()
     {
-
         //start curl
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->getValidateUrl());
@@ -77,17 +71,14 @@ class IULoginCAS2{
         $results = curl_exec($curl);
 
         //get username
-        $results = simplexml_load_string($results);
-        $username = (string)$results->xpath('cas:authenticationSuccess/cas:user')[0];
-
-        //when validate fails, re-login
-        if(empty($username)){
-            $this->login();
+        if (strpos($results, 'cas:authenticationSuccess') !== false) {
+            $results = simplexml_load_string($results);
+            $_SESSION[self::CASE_SESSION_USER_KEY] =
+                (string)$results->xpath('cas:authenticationSuccess/cas:user')[0];
         }
 
-        return $username;
-
     }
+
 
     public function logout()
     {
@@ -95,7 +86,21 @@ class IULoginCAS2{
     }
 
 
+    //checkers
+    public function isSessionExpired()
+    {
+        $result = true;
+        if (isset($_SESSION[self::CAS_SESSION_START])) {
+            $result = (time() - $_SESSION[self::CAS_SESSION_START] > self::CAS_SESSION_TIME);
+        }
 
+        return $result;
+    }
+
+    public function isUserNotLogged()
+    {
+        return !isset($_SESSION[self::CASE_SESSION_USER_KEY]);
+    }
 
 
     public function getUserName()
@@ -105,7 +110,7 @@ class IULoginCAS2{
 
     public function setUserName(?string $name)
     {
-
+        $this->username = $name;
     }
 
     public function getCasTicket()
@@ -127,7 +132,10 @@ class IULoginCAS2{
         $port = empty($port) ? '' : ':' . $port;
 
         //prepare url for /serviceValidate
-        $requestUri = str_replace('ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
+        $requestUri = $_SERVER['REQUEST_URI'];
+        if (isset($_GET['ticket'])) {
+            $requestUri = str_replace('?ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
+        }
 
 
         return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
@@ -143,7 +151,7 @@ class IULoginCAS2{
 
     public function getLoginUrl(): string
     {
-         return $this->getCasUrlBase() . DIRECTORY_SEPARATOR . 'login?service=' . $this->getServiceUrl();
+        return $this->getCasUrlBase() . DIRECTORY_SEPARATOR . 'login?service=' . $this->getServiceUrl();
     }
 
     public function getValidateUrl(): string
@@ -153,7 +161,6 @@ class IULoginCAS2{
 
         return $this->getCasUrlBase() . DIRECTORY_SEPARATOR . 'serviceValidate?ticket=' . $ticket . '&service=' . $serviceUrl;
     }
-
 
 
 }
