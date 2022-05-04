@@ -73,8 +73,7 @@ class IULoginCAS2
         //get username
         if (strpos($results, 'cas:authenticationSuccess') !== false) {
             $results = simplexml_load_string($results);
-            $_SESSION[self::CASE_SESSION_USER_KEY] =
-                (string)$results->xpath('cas:authenticationSuccess/cas:user')[0];
+            $this->setUserName((string)$results->xpath('cas:authenticationSuccess/cas:user')[0]);
         }
 
     }
@@ -82,6 +81,7 @@ class IULoginCAS2
 
     public function logout()
     {
+        $this->setUserName(null);
 
     }
 
@@ -111,6 +111,11 @@ class IULoginCAS2
     public function setUserName(?string $name)
     {
         $this->username = $name;
+        if($name === null){
+            unset($_SESSION[self::CASE_SESSION_USER_KEY]);
+        }else{
+            $_SESSION[self::CASE_SESSION_USER_KEY] = $name;
+        }
     }
 
     public function getCasTicket()
