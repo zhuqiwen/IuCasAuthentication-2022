@@ -141,9 +141,9 @@ class IULoginCAS2
         if (isset($_GET['ticket'])) {
             $requestUri = str_replace('?ticket=' . $_GET['ticket'], '', $_SERVER['REQUEST_URI']);
         }
+        $url = $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
 
-
-        return $urlHead . $_SERVER['HTTP_HOST'] . $port . $requestUri;
+        return rawurlencode($url);
     }
 
     public function getCasUrlBase(): string
