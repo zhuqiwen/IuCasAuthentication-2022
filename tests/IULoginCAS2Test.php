@@ -90,6 +90,9 @@ class IULoginCAS2Test extends TestCase{
     }
 
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testGetServiceUrl()
     {
         $_GET['ticket'] = 'abc';
@@ -104,11 +107,17 @@ class IULoginCAS2Test extends TestCase{
         unset($_GET['ticket']);
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testGetCasUrlBase()
     {
         self::assertSame('http://localhost:12345', $this->cas->getCasUrlBase());
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testGetLoginUrl()
     {
         $this->setupService('http and not 80');
@@ -151,9 +160,5 @@ class IULoginCAS2Test extends TestCase{
         self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=https://localhost/test', $this->cas->getValidateUrl());
     }
 
-    public function testIsAuthenticated()
-    {
-        
-    }
 }
 
