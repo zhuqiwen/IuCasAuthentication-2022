@@ -130,7 +130,7 @@ run the following in your composer project's root folder, where the `composer.js
 ```shell
 composer require iu-vpcm/cas2
 ```
-### plain php include/require
+### Plain PHP include/require
 Download the script, name it as you wish (for example `cas2.php`) and in your scripts:
 ```php
 require 'PATH-TO/cas2.php';
