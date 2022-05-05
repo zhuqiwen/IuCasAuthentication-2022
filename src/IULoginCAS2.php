@@ -79,15 +79,10 @@ class IULoginCAS2
     }
 
 
-    public function logout()
-    {
-        $this->setUserName(null);
-
-    }
-
+    //TODO: add logout
 
     //checkers
-    public function isSessionExpired()
+    public function isSessionExpired(): bool
     {
         $result = true;
         if (isset($_SESSION[self::CAS_SESSION_START])) {
@@ -97,7 +92,7 @@ class IULoginCAS2
         return $result;
     }
 
-    public function isUserNotLogged()
+    public function isUserNotLogged(): bool
     {
         return !isset($_SESSION[self::CASE_SESSION_USER_KEY]);
     }
