@@ -8,9 +8,9 @@ Note that this lib only authenticate if user has a valid iu credential. It DOES 
 
 For your app to have finer granularity for access control, consider implementing a role-based access control system.  
 
-Tom Gregory's original repo for previous CAS login: https://github.com/tag/IuCasAuthentication
+**Tom Gregory's original repo** for previous CAS login: https://github.com/tag/IuCasAuthentication
 
-Lee Hadley's work of a working script for current CAS login:
+**Lee Hadley's work** of a working script for current CAS login:
 ```php
 <?php
 # modified 1/26/22 to work with IU Login by Lee Hadley leehadley@iu.edu 
