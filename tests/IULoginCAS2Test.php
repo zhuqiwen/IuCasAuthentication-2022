@@ -97,13 +97,13 @@ class IULoginCAS2Test extends TestCase{
     {
         $_GET['ticket'] = 'abc';
         $this->setupService('http and not 80');
-        self::assertSame('http://localhost:54321/test', $this->cas->getServiceUrl());
+        self::assertSame(rawurlencode('http://localhost:54321/test'), $this->cas->getServiceUrl());
         $this->setupService('http and 80');
-        self::assertSame('http://localhost/test', $this->cas->getServiceUrl());
+        self::assertSame(rawurlencode('http://localhost/test'), $this->cas->getServiceUrl());
         $this->setupService('https and not 443');
-        self::assertSame('https://localhost:54321/test', $this->cas->getServiceUrl());
+        self::assertSame(rawurlencode('https://localhost:54321/test'), $this->cas->getServiceUrl());
         $this->setupService('https and 443');
-        self::assertSame('https://localhost/test', $this->cas->getServiceUrl());
+        self::assertSame(rawurlencode('https://localhost/test'), $this->cas->getServiceUrl());
         unset($_GET['ticket']);
     }
 
@@ -121,16 +121,16 @@ class IULoginCAS2Test extends TestCase{
     public function testGetLoginUrl()
     {
         $this->setupService('http and not 80');
-        self::assertSame('http://localhost:12345/login?service=http://localhost:54321/test', $this->cas->getLoginUrl());
+        self::assertSame('http://localhost:12345/login?service=' . rawurlencode('http://localhost:54321/test'), $this->cas->getLoginUrl());
 
         $this->setupService('http and 80');
-        self::assertSame('http://localhost:12345/login?service=http://localhost/test', $this->cas->getLoginUrl());
+        self::assertSame('http://localhost:12345/login?service=' . rawurlencode('http://localhost/test'), $this->cas->getLoginUrl());
 
         $this->setupService('https and not 443');
-        self::assertSame('http://localhost:12345/login?service=https://localhost:54321/test', $this->cas->getLoginUrl());
+        self::assertSame('http://localhost:12345/login?service=' . rawurlencode('https://localhost:54321/test'), $this->cas->getLoginUrl());
 
         $this->setupService('https and 443');
-        self::assertSame('http://localhost:12345/login?service=https://localhost/test', $this->cas->getLoginUrl());
+        self::assertSame('http://localhost:12345/login?service=' . rawurlencode('https://localhost/test'), $this->cas->getLoginUrl());
 
     }
 
@@ -141,23 +141,23 @@ class IULoginCAS2Test extends TestCase{
     {
         unset($_GET['ticket']);
         $this->setupService('http and not 80');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=http://localhost:54321/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=' . rawurlencode('http://localhost:54321/test'), $this->cas->getValidateUrl());
         $this->setupService('http and 80');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=http://localhost/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=' . rawurlencode('http://localhost/test'), $this->cas->getValidateUrl());
         $this->setupService('https and not 443');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=https://localhost:54321/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=' . rawurlencode('https://localhost:54321/test'), $this->cas->getValidateUrl());
         $this->setupService('https and 443');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=https://localhost/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=&service=' . rawurlencode('https://localhost/test'), $this->cas->getValidateUrl());
 
         $_GET['ticket'] = 'dummy-ticket';
         $this->setupService('http and not 80');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=http://localhost:54321/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=' . rawurlencode('http://localhost:54321/test'), $this->cas->getValidateUrl());
         $this->setupService('http and 80');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=http://localhost/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=' . rawurlencode('http://localhost/test'), $this->cas->getValidateUrl());
         $this->setupService('https and not 443');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=https://localhost:54321/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=' . rawurlencode('https://localhost:54321/test'), $this->cas->getValidateUrl());
         $this->setupService('https and 443');
-        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=https://localhost/test', $this->cas->getValidateUrl());
+        self::assertSame('http://localhost:12345/serviceValidate?ticket=dummy-ticket&service=' . rawurlencode('https://localhost/test'), $this->cas->getValidateUrl());
     }
 
 }
