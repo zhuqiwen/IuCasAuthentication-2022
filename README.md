@@ -1,6 +1,6 @@
 # IULoginCAS2
 
-First, the majority of credits go to [Tom Gregory](https://kelley.iu.edu/faculty-research/faculty-directory/profile.html?id=TOMGREG) (@tomgreg) and [Lee Hadley](https://studios.iu.edu/about/people/hadley-lee.html) (@leehadle). This lib is based on their work.
+First, credits go to [Tom Gregory](https://kelley.iu.edu/faculty-research/faculty-directory/profile.html?id=TOMGREG) (@tomgreg) and [Lee Hadley](https://studios.iu.edu/about/people/hadley-lee.html) (@leehadle). This lib is based on their work.
 
 Implementing a script with [IU Login 2.0 with CAS](https://kb.iu.edu/d/bfpq) is not hard. Hopefully this lib will make it even easier.
 
