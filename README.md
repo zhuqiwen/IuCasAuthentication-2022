@@ -152,4 +152,6 @@ $cas->authenticate();
 to get username after authenticate:
 ```php
 $username = $cas->getUsername();
+//or
+//$username = $_SESSION['CAS_USER'];
 ```
