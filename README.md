@@ -139,6 +139,8 @@ require 'PATH-TO/cas2.php';
 ```
 ## Usage
 ```php
+use Edu\IU\VPCM\IULoginCAS\IULoginCAS2;
+
 $cas = new IULoginCAS2();
 ```
 
