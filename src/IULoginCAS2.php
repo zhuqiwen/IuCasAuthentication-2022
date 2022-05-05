@@ -55,14 +55,14 @@ class IULoginCAS2
         }
     }
 
-    public function login()
+    protected function login()
     {
         $_SESSION[self::CAS_SESSION_START] = time();
         header('Location: ' . $this->getLoginUrl(), true, 303);
         exit();
     }
 
-    public function validate()
+    protected function validate()
     {
         //start curl
         $curl = curl_init();
