@@ -155,3 +155,5 @@ $username = $cas->getUsername();
 //or
 //$username = $_SESSION['CAS_USER'];
 ```
+
+**Note** that if `php -S localhost:PORT` is employed for local development for your app, the lib detects that and skips real authenticate with IU Login 2.0, while setting a fake username, `fake_user`
