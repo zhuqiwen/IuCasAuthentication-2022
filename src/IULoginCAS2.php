@@ -46,6 +46,13 @@ class IULoginCAS2
 
     public function authenticate()
     {
+        //add checker to see if it's localhost server for dev.
+        //if so, skip authenticate and set a fake username for development
+        if($this->isLocalhost()){
+            $this->setUserName('fake_user');
+            return;
+        }
+
         if ($this->isSessionExpired()) {
             $this->login();
         } elseif ($this->getCasTicket()) {
@@ -82,6 +89,12 @@ class IULoginCAS2
     //TODO: add logout
 
     //checkers
+    public function isLocalhost()
+    {
+        return $_SERVER['SERVER_NAME'] == 'localhost';
+    }
+
+
     public function isSessionExpired(): bool
     {
         $result = true;
