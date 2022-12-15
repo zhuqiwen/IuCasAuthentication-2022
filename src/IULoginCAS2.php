@@ -120,6 +120,7 @@ class IULoginCAS2
     public function setUserName(?string $name)
     {
         $this->username = $name;
+
         $this->firstLetter = substr($name, 0, 1);
         if($name === null){
             unset($_SESSION[self::CASE_SESSION_USER_KEY]);
