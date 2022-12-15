@@ -13,6 +13,7 @@ class IULoginCAS2
     private $casUrlProd;
     private $casUrlPreProd;
     private $username;
+    private $firstLetter;
 
     public function __construct(string $mode = 'prod')
     {
@@ -119,6 +120,7 @@ class IULoginCAS2
     public function setUserName(?string $name)
     {
         $this->username = $name;
+        $this->firstLetter = substr($name, 0, 1);
         if($name === null){
             unset($_SESSION[self::CASE_SESSION_USER_KEY]);
         }else{
